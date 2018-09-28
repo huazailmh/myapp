@@ -1,0 +1,38 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reporting</title>
+    <link href="../styles/bootstrap.min.css" rel="stylesheet">
+    <script src="../js/jquery.min.js"></script>
+	<script src="../js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1>Reporting</h1>
+    </div>
+    <hr style="height:3px;border:none;border-top:3px groove deepskyblue;" />
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="span2  col-xs-12 col-sm-3 col-md-2">
+                <ul class="nav nav-pills nav-stacked">
+                    <li><a href="#/r001">r001</a></li>
+                    <li><a href="#/r002">r002</a></li>
+                    <li><a href="#/r003">r003</a></li>
+                    <li><a href="#/r004">r004</a></li>
+                    <li><a href="#/r005">r005</a></li>
+                </ul>
+            </div>
+            <div class="col-xs-12 col-sm-9 col-md-10">
+                <div ng-view></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer navbar-fixed-bottom ">
+        <div class="container-fluid">
+            <p>Bruce &copy; </p>
+        </div>
+    </footer>
+</body>
+</html>
