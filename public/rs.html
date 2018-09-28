@@ -4,9 +4,16 @@
     <title>Reporting</title>
     <link href="../styles/bootstrap.min.css" rel="stylesheet">
     <script src="../js/jquery.min.js"></script>
-	<script src="../js/bootstrap.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    
+    <link rel="stylesheet" href="styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="styles/kendo.default.min.css" />
+    <link rel="stylesheet" href="styles/kendo.default.mobile.min.css" />
+
+    <script src="js/jszip.min.js"></script>
+    <script src="js/kendo.all.min.js"></script>
 </head>
-<body>
+<body ng-app="rsApp">
     <div class="container-fluid">
         <h1>Reporting</h1>
     </div>
@@ -34,5 +41,20 @@
             <p>Bruce &copy; </p>
         </div>
     </footer>
+
+    <script src="../js/angular.min.js"></script>
+    <script src="../js/angular-route.min.js"></script>
+
+    <script>
+
+angular.module('rsApp',['ngRoute'])
+.config(['$routeProvider', function($routeProvider){
+    $routeProvider
+    .when('/',{templateUrl:'views/home.html'})
+    .when('/r001',{templateUrl:'views/report.html'})
+    .otherwise({redirectTo:'/'});
+}])
+
+    </script>
 </body>
 </html>

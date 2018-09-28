@@ -1,0 +1,38 @@
+<div>
+    <h2>R001</h2>
+    <div id="spreadsheet"></div>
+    <script>
+        $.ajax({
+                // dataType: 'native',
+                // xhrFields: {
+                //     responseType: 'blob'
+                // },
+                url: "/reports/r001",
+                //async: true,
+                success: function(result) {
+                    var decodedStr = atob(result);
+                    var bytes = new Uint8Array(decodedStr.length);
+                    for(var i = 0; i<decodedStr.length; i++) {
+                        bytes[i] = decodedStr.charCodeAt(i);
+                    }
+                    var blob = new Blob([bytes.buffer]);
+
+                    //var blob = new Blob([atob(result)]);
+                    // var blob = result;
+
+                    // var link=document.createElement('a');
+                    // link.href=window.URL.createObjectURL(blob);
+                    // link.download="test.xlsx";
+                    // link.click();
+                
+                    $("#spreadsheet").kendoSpreadsheet();
+                    var spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+                    spreadsheet.fromFile(blob);
+                },
+                error: function(error) {
+                    console.log("something wrong with this page!" + error);
+                }
+            });
+    
+    </script>
+</div>
