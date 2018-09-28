@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="styles/kendo.default.min.css" />
+    <link rel="stylesheet" href="styles/kendo.default.mobile.min.css" />
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jszip.min.js"></script>
+    <script src="js/kendo.all.min.js"></script>
+    
+
+</head>
+<body>
+    <input id="file" type="file" />
+    <div id="spreadsheet"></div>
+    <script>
+        $("#spreadsheet").kendoSpreadsheet();
+
+        $("#file").on("change", function() {
+            var spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+            spreadsheet.fromFile(this.files[0]);
+
+
+spreadsheet.defineName("MyCell", "Sheet1!$A$10");
+
+
+
+            var sheet = spreadsheet.activeSheet();
+            
+            sheet.range("A10").value("1000");
+        sheet.range("A11").input("=MyCell*2");
+            
+
+
+
+            //sheet.range("MyCell").input("hello");
+
+
+            //sheet.range("dsContent_expense").select();
+            //sheet.range("A4:A5").select();
+            sheet.range("A8").value("hello world!");
+
+            //sheet.range("dsAdjustContent_income").input("hello");
+        });
+
+        var ss = $("#spreadsheet").data("kendoSpreadsheet");
+
+
+        var cellContextMenu = ss.cellContextMenu();
+        cellContextMenu.append([{ text: "Highlight", cssClass: "highlight" }]);
+        cellContextMenu.bind("select", function(e) {
+           var command = $(e.item).text();
+
+          if(command == "Highlight") {
+            var sheet = ss.activeSheet(),
+                selection = sheet.selection();
+
+            selection.background("green");
+          }
+       });
+
+
+        
+
+        ss.bind("change", function(e) {
+            //console.log(e.sender);
+            console.log(e.range);
+
+console.log("---" + e.sender.nameValue("dsContent_expense"));
+// console.log("---" + e.sender.nameForRef());
+// console.log("---" + e.sender.nameDefinition("dsContent_expense", 1));
+e.sender.forEachName(function(a1, a2) {
+    console.log("====" + a1 + a2);
+})
+
+            e.range.forEachCell(function (row, column, value) {
+                console.log(row, column, value);
+            });
+
+            //e.sender.activeSheet().range("dsAdjustContent_income").value("hello world!");;
+
+
+            //console.log(this);
+            });
+
+            //ss.activeSheet().range("A8").value("hello world!");
+
+    </script>
+
+
+</body>
+</html>
