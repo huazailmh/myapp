@@ -2,30 +2,56 @@
     <h2>R001</h2>
     <div id="spreadsheet"></div>
     <script>
+
+        window.cellNameMap= [];
+
+        $("#spreadsheet").kendoSpreadsheet({
+            excelImport: function(e) {
+                e.promise
+                   .progress(function(e) {
+                        console.log(kendo.format("{0:P} complete", e.progress));
+                    })
+                    .done(function() {
+                        var spreadsheet = e.sender;
+
+                        spreadsheet.forEachName(function(arg1, arg2) {
+                            window.cellNameMap[arg1.name] = { "rowIndex": arg1.value.row, "colIndex": arg1.value.col};
+                        })
+
+                        Object.keys(window.cellNameMap).forEach(function(e) {
+                            var rds = window.reportData;
+
+                            var name = e;
+                            var nameArr = name.split("_");
+                            var keyPath = "";
+                            for(var i = 0; i< nameArr.length; i++) {
+                                keyPath = keyPath + "." + nameArr[i];
+                            }
+
+                            var cellValue2BeFilled = eval("rds" + keyPath);
+
+                            var kss = $("#spreadsheet").data("kendoSpreadsheet");
+                            kss.activeSheet().range(window.cellNameMap[e].rowIndex, window.cellNameMap[e].colIndex).value(cellValue2BeFilled);
+                        })
+                    });
+            }
+        });
+
+
         $.ajax({
-                // dataType: 'native',
-                // xhrFields: {
-                //     responseType: 'blob'
-                // },
                 url: "/reports/r001",
-                //async: true,
+                async: false,
                 success: function(result) {
-                    var decodedStr = atob(result);
+                    var rds = result.reportDataSet;
+                    window.reportData = rds;
+
+                    var decodedStr = atob(result.reportTemplate);
                     var bytes = new Uint8Array(decodedStr.length);
                     for(var i = 0; i<decodedStr.length; i++) {
                         bytes[i] = decodedStr.charCodeAt(i);
                     }
                     var blob = new Blob([bytes.buffer]);
-
-                    //var blob = new Blob([atob(result)]);
-                    // var blob = result;
-
-                    // var link=document.createElement('a');
-                    // link.href=window.URL.createObjectURL(blob);
-                    // link.download="test.xlsx";
-                    // link.click();
                 
-                    $("#spreadsheet").kendoSpreadsheet();
                     var spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
                     spreadsheet.fromFile(blob);
                 },
@@ -34,5 +60,7 @@
                 }
             });
     
+    //console.log("cellNameMap: " + cellNameMap);
+
     </script>
 </div>

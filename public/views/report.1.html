@@ -1,0 +1,117 @@
+<div>
+    <h2>R001</h2>
+    <div id="spreadsheet"></div>
+    <script>
+
+        window.cellNameMap= [];
+
+        $.ajax({
+                // dataType: 'native',
+                // xhrFields: {
+                //     responseType: 'blob'
+                // },
+                url: "/reports/r001",
+                async: false,
+                success: function(result) {
+                    var decodedStr = atob(result.reportTemplate);
+                    var bytes = new Uint8Array(decodedStr.length);
+                    for(var i = 0; i<decodedStr.length; i++) {
+                        bytes[i] = decodedStr.charCodeAt(i);
+                    }
+                    var blob = new Blob([bytes.buffer]);
+
+                    //var blob = new Blob([atob(result)]);
+                    // var blob = result;
+
+                    // var link=document.createElement('a');
+                    // link.href=window.URL.createObjectURL(blob);
+                    // link.download="test.xlsx";
+                    // link.click();
+                
+                    $("#spreadsheet").kendoSpreadsheet();
+                    var spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+                    spreadsheet.fromFile(blob);
+
+                            // spreadsheet.forEachName(function(arg1, arg2) {
+                            //     console.log("====" + arg1 + arg2);
+                            //     window.cellNameMap[arg2] = { "rowIndex": arg1.value.row, "colIndex": arg1.value.col};
+                            // })
+                            // console.log("cellNameMap: " + window.cellNameMap);
+
+                    window.flag = 0;
+                    spreadsheet.bind("render", function(e) {
+                        console.log("cellNameMap: " + window.cellNameMap);
+
+                        if(window.flag === 0) {
+                            window.flag = 1;
+                            console.log("-=-=-=-=-=-=-=-");
+                            e.sender.forEachName(function(arg1, arg2) {
+                                //console.log("====" + arg1 + arg2);
+                                window.cellNameMap[arg1.name] = { "rowIndex": arg1.value.row, "colIndex": arg1.value.col};
+                            })
+
+                            console.log("result.reportDataSet: " + result.reportDataSet);
+
+                            // var sheet = e.sender.activeSheet();
+                            // sheet.bind("change", function() {
+                            //     console.log("sheet state changed");
+                            // });
+                            //sheet.range("A1:B2").values([ [1, 2], [2, 3] ]);
+
+                            var rds = result.reportDataSet;
+
+                            Object.keys(window.cellNameMap).forEach(function(e) {
+                                console.log("e: " + e);
+                                console.log("v: " + window.cellNameMap[e]);
+
+                                console.log("rds: " + rds);
+
+                                var name = e;
+                                var nameArr = name.split("_");
+                                var keyPath = "";
+                                for(var i = 0; i< nameArr.length; i++) {
+                                    keyPath = keyPath + "." + nameArr[i];
+                                }
+
+                                console.log("keyPath: " + keyPath);
+
+                                var cellValue2BeFilled = eval("rds" + keyPath);
+
+                                console.log("cellValue2BeFilled: " + cellValue2BeFilled);
+
+                                console.log("=====kendo" + $("#spreadsheet").data("kendoSpreadsheet"));
+
+                                console.log("rowIndex: " + window.cellNameMap[e].rowIndex);
+                                console.log("colIndex: " + window.cellNameMap[e].colIndex);
+
+                                var kss = $("#spreadsheet").data("kendoSpreadsheet");
+                                //kss.activeSheet().range(window.cellNameMap[e].rowIndex, window.cellNameMap[e].colIndex).input(100);
+
+                                var is = kss.activeSheet();
+                                var ir = is.range("B10");
+                                ir.value(100);
+
+                                //kss.activeSheet().range("B10").value(100);
+                            })
+
+
+                        }
+                    });
+
+
+                    // spreadsheet.bind("change", function(e) {
+                    //     console.log(e.range);
+                    //     console.log(e.range.values());
+                    //     console.log(e.range.value());
+                    // })
+
+                },
+                error: function(error) {
+                    console.log("something wrong with this page!" + error);
+                }
+            });
+    
+    //console.log("cellNameMap: " + cellNameMap);
+
+    </script>
+</div>
