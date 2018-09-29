@@ -1,7 +1,11 @@
 var fs = require('fs');
 
+var bodyParser = require("body-parser");
+
 const express = require('express')
 const app = express()
+
+app.use(bodyParser.json());
 
 app.use(express.static('public'))
 
@@ -19,6 +23,11 @@ app.get("/reports/r001", function(req, res) {
     reportData.reportDataSet = {"dsContent": { "expense": 200, "income": 710, "profit": 510, "comments": "haha good"}, "dsAdjustContent": {}};
     reportData.reportTemplate = Buffer.from(contents).toString("base64");
     res.send(reportData);
+});
+
+app.post("/reports/r001/adjustment", function(req, res) {
+    console.log("req: " + req);
+    res.send("adjustment OK");
 });
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'))

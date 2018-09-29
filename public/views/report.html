@@ -1,9 +1,12 @@
 <div>
     <h2>R001</h2>
+    <button id="adjustmentDataSave">Click me to save adjustmentData</button>
     <div id="spreadsheet"></div>
     <script>
 
         window.cellNameMap= [];
+        window.cellIndexMap= [];
+        window.adjustmentData = {};
 
         $("#spreadsheet").kendoSpreadsheet({
             excelImport: function(e) {
@@ -16,6 +19,7 @@
 
                         spreadsheet.forEachName(function(arg1, arg2) {
                             window.cellNameMap[arg1.name] = { "rowIndex": arg1.value.row, "colIndex": arg1.value.col};
+                            window.cellIndexMap["R" + arg1.value.row + "_" + "C" + arg1.value.col] = arg1.name;
                         })
 
                         Object.keys(window.cellNameMap).forEach(function(e) {
@@ -32,10 +36,49 @@
 
                             var kss = $("#spreadsheet").data("kendoSpreadsheet");
                             kss.activeSheet().range(window.cellNameMap[e].rowIndex, window.cellNameMap[e].colIndex).value(cellValue2BeFilled);
-                        })
+                        });
+
+                        spreadsheet.bind("change", function(e) {
+                            console.log("spread sheet state changed");
+
+                            var valueChangedCell = e.range;
+                            var index = "";
+                            var cellValue = "";
+                            valueChangedCell.forEachCell(function (row, column, value) {
+                                index = "R" + row + "_" + "C" + column;
+                                cellValue = value.value;
+                            });
+
+                            var cellName = window.cellIndexMap[index];
+                            console.log("cellName:" + cellName);
+
+                            var obj = window.adjustmentData;
+                            if(cellName != null) {
+                                var nameArr = cellName.split("_");
+                                for(var i = 0, obj0 = obj; i < nameArr.length; i++) {
+                                    if(i === nameArr.length -1) {
+                                        obj0[nameArr[i]] = cellValue;
+                                    } else {
+                                        if(obj0[nameArr[i]] != null) {
+                                            innerObj = obj0[nameArr[i]];
+                                        } else {
+                                            var innerObj = new Object();
+                                            obj0[nameArr[i]] = innerObj;
+                                        }
+                                        obj0 = innerObj;
+                                    }
+                                }
+                            }
+
+                            console.log("constructed obj: " + obj);
+
+                        });
+
+
                     });
             }
         });
+
 
 
         $.ajax({
@@ -61,6 +104,20 @@
             });
     
     //console.log("cellNameMap: " + cellNameMap);
+
+    $("#adjustmentDataSave").click(function(){
+        console.log("adjustmentDataSave" + window.adjustmentData);
+        $.ajax({
+                type: 'POST',
+                url: "/reports/r001/adjustment",
+                data: JSON.stringify(window.adjustmentData),
+                success: function() {
+                    console.log("success")
+                },
+                contentType: "application/json; charset=utf-8"
+            });
+
+    });
 
     </script>
 </div>
