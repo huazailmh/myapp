@@ -21,13 +21,16 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="span2  col-xs-12 col-sm-3 col-md-2">
+            <div class="span2  col-xs-12 col-sm-3 col-md-2" ng-controller="listCtrl">
                 <ul class="nav nav-pills nav-stacked">
-                    <li><a href="#/r001">r001</a></li>
+                        <li ng-repeat="oneReport in reportList">
+                            <a href=" {{ '#/' +  oneReport.reportId }}" > {{ oneReport.reportId }} </a>
+                         </li>
+                    <!-- <li><a href="#/r001">r001</a></li>
                     <li><a href="#/r002">r002</a></li>
                     <li><a href="#/r003">r003</a></li>
                     <li><a href="#/r004">r004</a></li>
-                    <li><a href="#/r005">r005</a></li>
+                    <li><a href="#/r005">r005</a></li> -->
                 </ul>
             </div>
             <div class="col-xs-12 col-sm-9 col-md-10">
@@ -46,15 +49,25 @@
     <script src="../js/angular-route.min.js"></script>
 
     <script>
-
-angular.module('rsApp',['ngRoute'])
-.config(['$routeProvider', function($routeProvider){
-    $routeProvider
-    .when('/',{templateUrl:'views/home.html'})
-    .when('/r001',{templateUrl:'views/report.html'})
-    .otherwise({redirectTo:'/'});
-}])
-
+        angular.module('rsApp',['ngRoute'])
+            .config(['$routeProvider', function($routeProvider){
+                $routeProvider
+                .when('/',{templateUrl:'views/home.html'})
+                .when('/R001',{templateUrl:'views/report.html'})
+                .otherwise({redirectTo:'/'});
+            }])
+            .controller('listCtrl', function($scope) {
+                $.ajax({
+                    url: "/reports",
+                    success: function(result) {
+                        var reports = result;
+                        $scope.reportList = reports;
+                    },
+                    error: function(error) {
+                        console.log("something wrong with list page!" + error);
+                    }
+                });
+            });
     </script>
 </body>
 </html>

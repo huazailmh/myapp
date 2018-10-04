@@ -15,6 +15,12 @@ app.use("/styles", express.static('styles'))
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
+app.get("/reports", function(req, res) {
+    var reportList = [{reportId: "R001"}, {reportId: "R002"}, {reportId: "R003"}, {reportId: "R004"}, {reportId: "R005"}];
+    res.send(reportList);
+});
+
+
 app.get("/reports/r001", function(req, res) {
     var contents = fs.readFileSync('reporting_system2.xlsx');
     //console.log(contents);
