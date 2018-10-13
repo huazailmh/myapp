@@ -33,6 +33,7 @@ app.get("/reports/r001", function(req, res) {
 
 app.post("/reports/r001/adjustment", function(req, res) {
     console.log("req: " + req);
+    console.log("req body: " + JSON.stringify(req.body));
     res.send("adjustment OK");
 });
 
