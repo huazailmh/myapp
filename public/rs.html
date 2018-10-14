@@ -54,6 +54,7 @@
                 $routeProvider
                 .when('/',{templateUrl:'views/home.html'})
                 .when('/R001',{templateUrl:'views/report.html'})
+                .when('/R002',{templateUrl:'views/report002.html'})
                 .otherwise({redirectTo:'/'});
             }])
             .controller('listCtrl', function($scope) {

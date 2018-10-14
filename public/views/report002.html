@@ -1,0 +1,131 @@
+<div>
+    <h2>R002</h2>
+    <button id="adjustmentDataSave">Click me to save adjustmentData</button>
+    <div id="spreadsheet"></div>
+    <script>
+
+        window.cellNameMap= [];
+        window.cellIndexMap= [];
+        window.adjustmentData = {};
+
+        $("#spreadsheet").kendoSpreadsheet({
+            excelImport: function(e) {
+                e.promise
+                   .progress(function(e) {
+                        console.log(kendo.format("{0:P} complete", e.progress));
+                    })
+                    .done(function() {
+                        var spreadsheet = e.sender;
+
+                        var activeSheet = spreadsheet.activeSheet();
+                        console.log("rCount: " + activeSheet._rows._count);
+                        console.log("cCount: " + activeSheet._columns._count);
+                        var rowCount = activeSheet._rows._count;
+                        var colCount = activeSheet._columns._count;
+
+                        activeSheet
+                            .range(0, 0, rowCount, colCount)
+                            .forEachCell(function (row, column, value) {  //big loop, performance
+                                if(value.value && typeof value.value === "string" && value.value.indexOf("displayFn") != -1) {
+                                    window.cellNameMap[value.value] = { "rowIndex": row, "colIndex": column};
+                                    window.cellIndexMap["R" + row + "_" + "C" + column] = value.value;
+                                    activeSheet.range(row, column).value(0); //clear markers, and set default value, what is the type?
+                                }
+                                
+                            });
+
+                        Object.keys(window.cellNameMap).forEach(function(e) {
+                            var rds = window.reportData;
+
+                            var name = e;
+                            var keyPath = name.substring(11, name.length-2).replace(/\//g, ".");
+
+                            var cellValue2BeFilled = eval("rds" + keyPath);
+
+                            var kss = $("#spreadsheet").data("kendoSpreadsheet");
+                            kss.activeSheet().range(window.cellNameMap[e].rowIndex, window.cellNameMap[e].colIndex).value(cellValue2BeFilled);
+                        });
+
+                        spreadsheet.bind("change", function(e) {
+                            console.log("spread sheet state changed");
+
+                            var valueChangedCell = e.range;
+                            var index = "";
+                            var cellValue = "";
+                            valueChangedCell.forEachCell(function (row, column, value) {
+                                index = "R" + row + "_" + "C" + column;
+                                cellValue = value.value;
+                            });
+
+                            var cellName = window.cellIndexMap[index];
+
+                            var obj = window.adjustmentData;
+                            if(cellName != null) {
+                                var keyPath = cellName.substring(11, cellName.length-2).replace(/\//g, "_");
+                                var nameArr = keyPath.split("_");
+                                for(var i = 0, obj0 = obj; i < nameArr.length; i++) {
+                                    if(i === nameArr.length -1) {
+                                        obj0[nameArr[i]] = cellValue;
+                                    } else {
+                                        if(obj0[nameArr[i]] != null) {
+                                            innerObj = obj0[nameArr[i]];
+                                        } else {
+                                            var innerObj = new Object();
+                                            obj0[nameArr[i]] = innerObj;
+                                        }
+                                        obj0 = innerObj;
+                                    }
+                                }
+                            }
+
+                            console.log("constructed obj: " + JSON.stringify(obj));
+
+                        });
+
+
+                    });
+            }
+        });
+
+
+
+        $.ajax({
+                url: "/reports/r002",
+                async: false,
+                success: function(result) {
+                    var rds = result.reportDataSet;
+                    window.reportData = rds;
+
+                    var decodedStr = atob(result.reportTemplate);
+                    var bytes = new Uint8Array(decodedStr.length);
+                    for(var i = 0; i<decodedStr.length; i++) {
+                        bytes[i] = decodedStr.charCodeAt(i);
+                    }
+                    var blob = new Blob([bytes.buffer]);
+                
+                    var spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+                    spreadsheet.fromFile(blob);
+                },
+                error: function(error) {
+                    console.log("something wrong with this page!" + error);
+                }
+            });
+    
+    //console.log("cellNameMap: " + cellNameMap);
+
+    $("#adjustmentDataSave").click(function(){
+        console.log("adjustmentDataSave" + window.adjustmentData);
+        $.ajax({
+                type: 'POST',
+                url: "/reports/r001/adjustment",
+                data: JSON.stringify(window.adjustmentData),
+                success: function() {
+                    console.log("success")
+                },
+                contentType: "application/json; charset=utf-8"
+            });
+
+    });
+
+    </script>
+</div>

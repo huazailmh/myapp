@@ -22,7 +22,7 @@ app.get("/reports", function(req, res) {
 
 
 app.get("/reports/r001", function(req, res) {
-    var contents = fs.readFileSync('reporting_system2.xlsx');
+    var contents = fs.readFileSync('report_template.xlsx');
     //console.log(contents);
     var reportData = {};
     reportData.reportId = "r001";
@@ -31,7 +31,17 @@ app.get("/reports/r001", function(req, res) {
     res.send(reportData);
 });
 
-app.post("/reports/r001/adjustment", function(req, res) {
+app.get("/reports/r002", function(req, res) {
+    var contents = fs.readFileSync('report_template002.xlsx');
+    //console.log(contents);
+    var reportData = {};
+    reportData.reportId = "r002";
+    reportData.reportDataSet = {"dsContent": { "expense": 200, "income": 710, "profit": 510, "comments": "haha good"}, "dsAdjustContent": {}};
+    reportData.reportTemplate = Buffer.from(contents).toString("base64");
+    res.send(reportData);
+});
+
+app.post("/reports/:reportId/adjustment", function(req, res) {
     console.log("req: " + req);
     console.log("req body: " + JSON.stringify(req.body));
     res.send("adjustment OK");
